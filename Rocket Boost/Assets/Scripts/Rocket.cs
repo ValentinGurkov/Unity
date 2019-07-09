@@ -22,6 +22,17 @@ public class Rocket : MonoBehaviour {
         Rotate();
     }
 
+    private void Rotate() {
+        rigidBody.freezeRotation = true;
+        float rotation = rcsThrust * Time.deltaTime;
+        if (Input.GetKey(KeyCode.A)) {
+            transform.Rotate(Vector3.forward * rotation);
+        } else if (Input.GetKey(KeyCode.D)) {
+            transform.Rotate(-Vector3.forward * rotation);
+        }
+        rigidBody.freezeRotation = false;
+    }
+
     private void Thrust() {
         if (Input.GetKey(KeyCode.Space)) {
             float thrust = mainThrust * Time.deltaTime;
@@ -34,14 +45,20 @@ public class Rocket : MonoBehaviour {
         }
     }
 
-    private void Rotate() {
-        rigidBody.freezeRotation = true;
-        float rotation = rcsThrust * Time.deltaTime;
-        if (Input.GetKey(KeyCode.A)) {
-            transform.Rotate(Vector3.forward * rotation);
-        } else if (Input.GetKey(KeyCode.D)) {
-            transform.Rotate(-Vector3.forward * rotation);
+    private void OnCollisionEnter(Collision collision) {
+        switch (collision.gameObject.tag) {
+            case "Friendly":
+                print("OK");
+                break;
+
+            case "Fuel":
+                print("Fuel");
+                break;
+
+            default:
+                print("Dead");
+                //kill player
+                break;
         }
-        rigidBody.freezeRotation = false;
     }
 }
