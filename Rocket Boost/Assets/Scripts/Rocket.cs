@@ -7,6 +7,14 @@ public class Rocket : MonoBehaviour {
 
     [SerializeField] private float rcsThrust = 250f;
     [SerializeField] private float mainThrust = 1350f;
+    [SerializeField] private float levelLoadDelay = 1f;
+    [SerializeField] private AudioClip mainEngine;
+    [SerializeField] private AudioClip sucess;
+    [SerializeField] private AudioClip death;
+
+    [SerializeField] private ParticleSystem mainEngineParticles;
+    [SerializeField] private ParticleSystem sucessParticles;
+    [SerializeField] private ParticleSystem deathParticles;
 
     private enum State { Alive, Dying, Transcending };
 
@@ -42,10 +50,16 @@ public class Rocket : MonoBehaviour {
             float thrust = mainThrust * Time.deltaTime;
             rigidBody.AddRelativeForce(Vector3.up * thrust);
             if (!audioSource.isPlaying) {
-                audioSource.Play();
+                audioSource.PlayOneShot(mainEngine);
+            }
+            if (mainEngineParticles.isStopped) {
+                mainEngineParticles.Play();
             }
         } else {
             audioSource.Stop();
+            if (mainEngineParticles.isPlaying) {
+                mainEngineParticles.Stop();
+            }
         }
     }
 
@@ -59,22 +73,36 @@ public class Rocket : MonoBehaviour {
                 break;
 
             case "Finish":
-                state = State.Transcending;
-                Invoke("LoadNextScene", 1f);
+                FinishLevel();
                 break;
 
             default:
-                state = State.Dying;
-                Invoke("StartOver", 1f);
+                Die();
                 break;
         }
     }
 
-    private void StartOver() {
-        SceneManager.LoadScene(0);
+    private void FinishLevel() {
+        state = State.Transcending;
+        audioSource.Stop();
+        audioSource.PlayOneShot(sucess);
+        sucessParticles.Play();
+        Invoke("LoadNextScene", levelLoadDelay);
+    }
+
+    private void Die() {
+        state = State.Dying;
+        audioSource.Stop();
+        audioSource.PlayOneShot(death);
+        deathParticles.Play();
+        Invoke("StartOver", levelLoadDelay);
     }
 
     private void LoadNextScene() {
         SceneManager.LoadScene(1);
+    }
+
+    private void StartOver() {
+        SceneManager.LoadScene(0);
     }
 }
