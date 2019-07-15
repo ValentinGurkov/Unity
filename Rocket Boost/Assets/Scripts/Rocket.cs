@@ -4,7 +4,11 @@ using UnityEngine.SceneManagement;
 public class Rocket : MonoBehaviour {
     private Rigidbody rigidBody;
     private AudioSource audioSource;
+    private int numOfLevels;
+    private int currentLevelIndex;
+    private int nextSceneIndex;
 
+    [SerializeField] private bool disableCollision = false;
     [SerializeField] private float rcsThrust = 250f;
     [SerializeField] private float mainThrust = 1350f;
     [SerializeField] private float levelLoadDelay = 1f;
@@ -24,6 +28,7 @@ public class Rocket : MonoBehaviour {
     private void Start() {
         rigidBody = GetComponent<Rigidbody>();
         audioSource = GetComponent<AudioSource>();
+        numOfLevels = SceneManager.sceneCountInBuildSettings;
     }
 
     // Update is called once per frame
@@ -31,6 +36,9 @@ public class Rocket : MonoBehaviour {
         if (state == State.Alive) {
             Rotate();
             Thrust();
+            if (Debug.isDebugBuild) {
+                RespondToDebugKeys();
+            }
         }
     }
 
@@ -63,8 +71,16 @@ public class Rocket : MonoBehaviour {
         }
     }
 
+    private void RespondToDebugKeys() {
+        if (Input.GetKeyDown(KeyCode.L)) {
+            LoadNextLevel();
+        } else if (Input.GetKeyDown(KeyCode.C)) {
+            disableCollision = !disableCollision;
+        }
+    }
+
     private void OnCollisionEnter(Collision collision) {
-        if (state != State.Alive) {
+        if (state != State.Alive || disableCollision) {
             return;
         }
 
@@ -87,7 +103,7 @@ public class Rocket : MonoBehaviour {
         audioSource.Stop();
         audioSource.PlayOneShot(sucess);
         sucessParticles.Play();
-        Invoke("LoadNextScene", levelLoadDelay);
+        Invoke("LoadNextLevel", levelLoadDelay);
     }
 
     private void Die() {
@@ -98,8 +114,10 @@ public class Rocket : MonoBehaviour {
         Invoke("StartOver", levelLoadDelay);
     }
 
-    private void LoadNextScene() {
-        SceneManager.LoadScene(1);
+    private void LoadNextLevel() {
+        currentLevelIndex = SceneManager.GetActiveScene().buildIndex;
+        nextSceneIndex = currentLevelIndex + 1 < numOfLevels ? currentLevelIndex + 1 : 0;
+        SceneManager.LoadScene(nextSceneIndex);
     }
 
     private void StartOver() {
