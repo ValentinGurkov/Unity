@@ -7,6 +7,7 @@ public class Rocket : MonoBehaviour {
     private int numOfLevels;
     private int currentLevelIndex;
     private int nextSceneIndex;
+    private bool isTransitioning;
 
     [SerializeField] private bool disableCollision = false;
     [SerializeField] private float rcsThrust = 250f;
@@ -20,10 +21,6 @@ public class Rocket : MonoBehaviour {
     [SerializeField] private ParticleSystem sucessParticles;
     [SerializeField] private ParticleSystem deathParticles;
 
-    private enum State { Alive, Dying, Transcending };
-
-    private State state = State.Alive;
-
     // Start is called before the first frame update
     private void Start() {
         rigidBody = GetComponent<Rigidbody>();
@@ -33,7 +30,7 @@ public class Rocket : MonoBehaviour {
 
     // Update is called once per frame
     private void Update() {
-        if (state == State.Alive) {
+        if (!isTransitioning) {
             Rotate();
             Thrust();
             if (Debug.isDebugBuild) {
@@ -43,13 +40,17 @@ public class Rocket : MonoBehaviour {
     }
 
     private void Rotate() {
-        rigidBody.freezeRotation = true;
         float rotation = rcsThrust * Time.deltaTime;
         if (Input.GetKey(KeyCode.A)) {
-            transform.Rotate(Vector3.forward * rotation);
+            RotateManually(rotation);
         } else if (Input.GetKey(KeyCode.D)) {
-            transform.Rotate(-Vector3.forward * rotation);
+            RotateManually(-rotation);
         }
+    }
+
+    private void RotateManually(float rotation) {
+        rigidBody.freezeRotation = true;
+        transform.Rotate(Vector3.forward * rotation);
         rigidBody.freezeRotation = false;
     }
 
@@ -80,7 +81,7 @@ public class Rocket : MonoBehaviour {
     }
 
     private void OnCollisionEnter(Collision collision) {
-        if (state != State.Alive || disableCollision) {
+        if (isTransitioning || disableCollision) {
             return;
         }
 
@@ -99,7 +100,7 @@ public class Rocket : MonoBehaviour {
     }
 
     private void FinishLevel() {
-        state = State.Transcending;
+        isTransitioning = true;
         audioSource.Stop();
         audioSource.PlayOneShot(sucess);
         sucessParticles.Play();
@@ -107,7 +108,7 @@ public class Rocket : MonoBehaviour {
     }
 
     private void Die() {
-        state = State.Dying;
+        isTransitioning = true;
         audioSource.Stop();
         audioSource.PlayOneShot(death);
         deathParticles.Play();
