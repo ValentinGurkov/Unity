@@ -19,6 +19,9 @@ public class PlayerController : MonoBehaviour {
 
     [SerializeField] private float controlRollFactor = -20f;
 
+    [Header("Guns")]
+    [SerializeField] private GameObject[] guns;
+
     private float xThrow, yThrow;
     private bool isControlEnabled = true;
     private Rigidbody rigidBody;
@@ -35,6 +38,7 @@ public class PlayerController : MonoBehaviour {
         if (isControlEnabled) {
             ProcessTranslation();
             ProcessRotation();
+            ProcessFiring();
         }
     }
 
@@ -66,6 +70,26 @@ public class PlayerController : MonoBehaviour {
         transform.localPosition = new Vector3(clampedXPos, clampedYPos, transform.localPosition.z);
     }
 
+    private void ProcessFiring() {
+        if (CrossPlatformInputManager.GetButton("Fire")) {
+            ActivateGuns();
+        } else {
+            DeactivateGuns();
+        }
+    }
+
+    private void ActivateGuns() {
+        foreach (GameObject gun in guns) {
+            gun.SetActive(true);
+        }
+    }
+
+    private void DeactivateGuns() {
+        foreach (GameObject gun in guns) {
+            gun.SetActive(false);
+        }
+    }
+
     private void OnPlayerDeath() { // called by string reference
         xRange = 100f;
         yRange = 100f;
@@ -74,5 +98,6 @@ public class PlayerController : MonoBehaviour {
             boxCollider.isTrigger = false;
         }
         isControlEnabled = false;
+        DeactivateGuns();
     }
 }
