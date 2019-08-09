@@ -56,7 +56,7 @@ namespace UnityStandardAssets.Utility {
         public Vector3 GetRoutePosition(float dist) {
             int point = 0;
 
-            if (Length == 0) {
+            if (Length <= Mathf.Epsilon) {
                 Length = distances[distances.Length - 1];
             }
 
