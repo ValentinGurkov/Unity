@@ -19,7 +19,6 @@ public class Enemy : MonoBehaviour {
     }
 
     private void OnParticleCollision(GameObject other) {
-        print("hit!");
         print(healthPoints);
         ProcessHit();
         if (healthPoints < 1) {
