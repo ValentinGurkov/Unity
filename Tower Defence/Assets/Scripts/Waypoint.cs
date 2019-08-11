@@ -2,7 +2,6 @@
 
 public class Waypoint : MonoBehaviour {
     private const int gridSize = 10;
-    private Vector2Int gridPos;
 
     public int GridSize {
         get {
@@ -10,9 +9,9 @@ public class Waypoint : MonoBehaviour {
         }
     }
 
-    public Vector3Int GridPos {
+    public Vector2Int GridPos {
         get {
-            return new Vector3Int(Mathf.RoundToInt(transform.position.x / gridSize) * gridSize, 0, Mathf.RoundToInt(transform.position.z / gridSize) * gridSize);
+            return new Vector2Int(Mathf.RoundToInt(transform.position.x / gridSize), Mathf.RoundToInt(transform.position.z / gridSize));
         }
     }
 

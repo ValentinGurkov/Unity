@@ -18,11 +18,11 @@ public class CubeEditor : MonoBehaviour {
     }
 
     private void SnapToGrid() {
-        transform.position = waypoint.GridPos;
+        transform.position = new Vector3Int(waypoint.GridPos.x * waypoint.GridSize, 0, waypoint.GridPos.y * waypoint.GridSize);
     }
 
     private void UpdateLabels() {
-        string labelText = waypoint.GridPos.x / waypoint.GridSize + "," + waypoint.GridPos.z / waypoint.GridSize;
+        string labelText = waypoint.GridPos.x + "," + waypoint.GridPos.y;
         textMesh.text = labelText;
         gameObject.name = labelText;
     }
